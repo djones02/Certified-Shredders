@@ -10,7 +10,7 @@ class User(Base):
 
     id = Column(Integer(), primary_key=True)
     name = Column(String(), index=True)
-    certified = Column(Boolean(), default=False)
+    certified = Column(String(), default="False")
     reviews = Column(Integer(), default=0)
 
     def __repr__(self):
@@ -24,7 +24,7 @@ class Spot(Base):
 
     id = Column(Integer(), primary_key=True)
     name = Column(String(), index=True)
-    type = Column(Boolean())
+    type = Column(String())
     city = Column(String())
     state = Column(String())
 
@@ -41,15 +41,9 @@ class Review(Base):
     id = Column(Integer(), primary_key=True)
     spot_name = Column(String(), ForeignKey('spots.name'))
     author = Column(String(), ForeignKey('users.name'))
-    type = Column(Boolean())
-    city = Column(String())
-    state = Column(String())
     review = Column(Integer())
 
     def __repr__(self):
         return f"Review ID: {self.id}" \
             + f"{self.name}" \
-            + f"{self.type}" \
-            + f"City: {self.city}" \
-            + f"State: {self.state}" \
             + f"Review: {self.review}"
