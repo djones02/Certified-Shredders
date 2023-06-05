@@ -1,8 +1,8 @@
-"""trying it
+"""testing
 
-Revision ID: 690ff08bd0b3
+Revision ID: 9d42e6bce07c
 Revises: 
-Create Date: 2023-06-05 12:33:51.500103
+Create Date: 2023-06-05 15:10:34.770325
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '690ff08bd0b3'
+revision = '9d42e6bce07c'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -39,9 +39,6 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('spot_name', sa.String(), nullable=True),
     sa.Column('author', sa.String(), nullable=True),
-    sa.Column('type', sa.Boolean(), nullable=True),
-    sa.Column('city', sa.String(), nullable=True),
-    sa.Column('state', sa.String(), nullable=True),
     sa.Column('review', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['author'], ['users.name'], ),
     sa.ForeignKeyConstraint(['spot_name'], ['spots.name'], ),
