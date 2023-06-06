@@ -18,6 +18,12 @@ def display_markdown(text):
 query_list_users = [user for user in session.query(User)]
 query_list_spots = [spot for spot in session.query(Spot)]
 
+def refresh_query_lists():
+    global query_list_users
+    global query_list_spots
+    query_list_users = [user for user in session.query(User)]
+    query_list_spots = [spot for spot in session.query(Spot)]
+
 def display_table():
     table = Table(show_header=True, header_style="bold", title="Users")
     table.add_column("ID")
@@ -48,6 +54,7 @@ def display_spot_table():
 def add_user():
     session.add(User(name=input("Username: "), certified= "False", reviews=0))
     session.commit()
+    refresh_query_lists()
 
 def select_user():
     user_choice = input("Choose a user by entering the ID or enter 0 to return: ")
