@@ -6,20 +6,15 @@ from models import *
 from sqlalchemy import create_engine, update
 from sqlalchemy.orm import sessionmaker
 
-
 engine = create_engine("sqlite:///certified_shredders.db")
 Session = sessionmaker(bind=engine)
 session = Session()
-
-
 
 def display_markdown(text):
     console = Console()
     console.print(Markdown(text))
 
 def display_table():
-    
-
     table = Table(show_header=True, header_style="bold")
     table.add_column("ID")
     table.add_column("Name")
@@ -36,7 +31,13 @@ def display_table():
 
 if __name__ == "__main__":
     markdown_text = """
-    # Welcome to Certified Shredders!
+                  ==O 
+                   /|\/ 
+          .-``'.  / |\   .'''-.
+        .`   .`~  _/__|_ ~`.   '.
+    _.-'     '._   o  o   _.'     '-._
+
+      Welcome to Certified Shredders!
 
     1. Select a user
     2. Create a new user
