@@ -1,12 +1,11 @@
+from sqlalchemy import create_engine, update
+from sqlalchemy.orm import sessionmaker
+import os
 from rich.console import Console
 from rich.theme import Theme
 from rich.table import Table
 from rich.markdown import Markdown
 from models import *
-from sqlalchemy import create_engine, update
-from sqlalchemy.orm import sessionmaker
-import os 
-from helpers import *
 
 engine = create_engine("sqlite:///certified_shredders.db")
 Session = sessionmaker(bind=engine)
@@ -17,6 +16,7 @@ def display_markdown(text):
     console.print(Markdown(text), style='bold')
 
 query_list_users = [user for user in session.query(User)]
+query_list_spots = [spot for spot in session.query(Spot)]
 
 def display_table():
     table = Table(show_header=True, header_style="bold", title="Users")
@@ -25,16 +25,27 @@ def display_table():
     table.add_column("Certified")
     table.add_column("Reviews")
 
-    # query_list_users = [user for user in session.query(User)]
-
     for user in query_list_users:
         table.add_row(f"{user.id}", f"{user.name}", f"{user.certified}", f"{user.reviews}")
 
     console = Console()
     console.print(table)
 
-def add_user():
+def display_spot_table():
+    table = Table(show_header=True, header_style="bold", title="Surf & Skate Spots")
+    table.add_column("ID")
+    table.add_column("Nickname")
+    table.add_column("Type")
+    table.add_column("City")
+    table.add_column("State")
 
+    for spot in query_list_spots:
+        table.add_row(f"{spot.id}", f"{spot.name}", f"{spot.type}", f"{spot.city}", f"{spot.state}")
+
+    console = Console()
+    console.print(table)
+
+def add_user():
     session.add(User(name=input("Username: "), certified= "False", reviews=0))
     session.commit()
 
@@ -45,13 +56,13 @@ def select_user():
             user_index = int(user_choice) - 1
             if 0 <= user_index <= len(query_list_users):
                 selected_user = query_list_users[user_index]
+                display_spot_table()
                 print("Selected user: ", selected_user.name)
             else:
                 print("Invalid user number. Please try again.")
         except (ValueError, IndexError):
             print("Invalid user number. Please try again.")
         user_choice = input("Choose a user by entering the ID or enter 0 to return: ")
-
 
 if __name__ == "__main__":
     welcome_text = """
