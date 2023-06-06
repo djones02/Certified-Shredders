@@ -1,5 +1,5 @@
-from sqlalchemy import create_engine, desc, func
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import create_engine
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 
 engine = create_engine('sqlite:///certified_shredders.db')
