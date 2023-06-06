@@ -5,6 +5,8 @@ from rich.markdown import Markdown
 from models import *
 from sqlalchemy import create_engine, update
 from sqlalchemy.orm import sessionmaker
+import os 
+from helpers import *
 
 engine = create_engine("sqlite:///certified_shredders.db")
 Session = sessionmaker(bind=engine)
@@ -12,10 +14,10 @@ session = Session()
 
 def display_markdown(text):
     console = Console()
-    console.print(Markdown(text))
+    console.print(Markdown(text), style='bold')
 
 def display_table():
-    table = Table(show_header=True, header_style="bold")
+    table = Table(show_header=True, header_style="bold", title="Users")
     table.add_column("ID")
     table.add_column("Name")
     table.add_column("Certified")
@@ -31,27 +33,30 @@ def display_table():
 
 if __name__ == "__main__":
     markdown_text = """
-                  ==O 
-                   /|\/ 
-          .-``'.  / |\   .'''-.
-        .`   .`~  _/__|_ ~`.   '.
-    _.-'     '._   o  o   _.'     '-._
+                      ==O 
+                       /|\/ 
+              .-``'.  / |\   .'''-.
+            .`   .`~  _/__|_ ~`.   '.
+        _.-'     '._   o  o   _.'     '-._
 
-      Welcome to Certified Shredders!
+          Welcome to Certified Shredders!
 
-    1. Select a user
-    2. Create a new user
-    3. Exit the App
+        1. Select a user
+        2. Create a new user
+        3. View README
+        4. Exit the App 
     """
     display_markdown(markdown_text)
 
     choice = input("Selection: ")
-    while choice != "3":
+    while choice != "4":
         if choice == "1":
             display_table()
         elif choice == "2":
-            print("selected")
+            print("2 selected")
+        elif choice == "3":
+            os.system("python -m rich.markdown README.md")
         else:
-            print("Invalid")
+            print("Please select an option from the menu")
         choice = input("Selection: ")
     print("Exiting the App")
