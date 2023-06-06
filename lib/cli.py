@@ -16,6 +16,8 @@ def display_markdown(text):
     console = Console()
     console.print(Markdown(text), style='bold')
 
+query_list_users = [user for user in session.query(User)]
+
 def display_table():
     table = Table(show_header=True, header_style="bold", title="Users")
     table.add_column("ID")
@@ -23,7 +25,7 @@ def display_table():
     table.add_column("Certified")
     table.add_column("Reviews")
 
-    query_list_users = [user for user in session.query(User)]
+    # query_list_users = [user for user in session.query(User)]
 
     for user in query_list_users:
         table.add_row(f"{user.id}", f"{user.name}", f"{user.certified}", f"{user.reviews}")
@@ -36,8 +38,19 @@ def add_user():
     session.add(User(name=input("Username: "), certified= "False", reviews=0))
     session.commit()
 
-# def display_spot_table():
-#     table = 
+def select_user():
+    user_choice = input("Choose a user by entering the ID or enter 0 to return: ")
+    while user_choice != "0":
+        try:
+            user_index = int(user_choice) - 1
+            if 0 <= user_index <= len(query_list_users):
+                selected_user = query_list_users[user_index]
+                print("Selected user: ", selected_user.name)
+            else:
+                print("Invalid user number. Please try again.")
+        except (ValueError, IndexError):
+            print("Invalid user number. Please try again.")
+        user_choice = input("Choose a user by entering the ID or enter 0 to return: ")
 
 
 if __name__ == "__main__":
@@ -68,10 +81,8 @@ if __name__ == "__main__":
     while choice != "4":
         if choice == "1":
             display_table()
-            # user_choice = input("Choose a user: ")
-            # while choice != "1":
-            #     if choice == "2":
-            #         display_spot_table()
+            select_user()
+            display_markdown(home_selection)
         elif choice == "2":
             add_user()
             display_markdown(welcome_text)
