@@ -22,7 +22,7 @@ if __name__ == '__main__':
     spots = [
         Spot(name="Pristine Peak", type="Surf", city="Ormond Beach", state="FL"),
         Spot(name="The Bowl", type="Skate", city="Ormond Beach", state="FL"),
-        Spot(name="Lynch Family Skatepark", type="Skate", city="Boston", state="Massachusetts")
+        Spot(name="Lynch Family Skatepark", type="Skate", city="Boston", state="MA")
     ]
 
     reviews = [
