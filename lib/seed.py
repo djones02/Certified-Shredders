@@ -13,17 +13,25 @@ if __name__ == '__main__':
     session.query(Spot).delete()
     session.query(Review).delete()
 
-    user1 = User(name="Eli", certified="True", reviews=0)
-    user2 = User(name="David", certified="True", reviews=0)
+    users= [
+        User(name="Eli", certified="True"),
+        User(name="David", certified="True"),
+        User(name="Cody", certified="True")
+    ]
 
-    spot1 = Spot(name="Pristine Peak", type="Surf", city="Ormond Beach", state="FL")
-    spot2 = Spot(name="The Bowl", type="Skate", city="Ormond Beach", state="FL")
+    spots = [
+        Spot(name="Pristine Peak", type="Surf", city="Ormond Beach", state="FL"),
+        Spot(name="The Bowl", type="Skate", city="Ormond Beach", state="FL"),
+        Spot(name="Lynch Family Skatepark", type="Skate", city="Boston", state="Massachusetts")
+    ]
 
-    review1 = Review(spot_name=spot1.name, author=user1.name, review=10)
-    review2 = Review(spot_name=spot2.name, author=user2.name, review=10)
+    reviews = [
+        Review(spot_name=spots[0].name, author=users[1].name, review=10),
+        Review(spot_name=spots[1].name, author=users[2].name, review=10),
+        Review(spot_name=spots[2].name, author=users[0].name, review=10)
+    ]
 
-    session.add_all([user1, user2])
-    session.add_all([spot1, spot2])
-    session.add_all([review1, review2])
+    session.bulk_save_objects(users)
+    session.bulk_save_objects(spots)
+    session.bulk_save_objects(reviews)
     session.commit()
-  
