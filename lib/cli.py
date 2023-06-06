@@ -31,8 +31,17 @@ def display_table():
     console = Console()
     console.print(table)
 
+def add_user():
+
+    session.add(User(name=input("Username: "), certified= "False", reviews=0))
+    session.commit()
+
+# def display_spot_table():
+#     table = 
+
+
 if __name__ == "__main__":
-    markdown_text = """
+    welcome_text = """
                       ==O 
                        /|\/ 
               .-``'.  / |\   .'''-.
@@ -46,16 +55,29 @@ if __name__ == "__main__":
         3. View README
         4. Exit the App 
     """
-    display_markdown(markdown_text)
+    display_markdown(welcome_text)
+
+    home_selection = """
+        1. Select a user
+        2. Create a new user
+        3. View README
+        4. Exit the App
+    """
 
     choice = input("Selection: ")
     while choice != "4":
         if choice == "1":
             display_table()
+            # user_choice = input("Choose a user: ")
+            # while choice != "1":
+            #     if choice == "2":
+            #         display_spot_table()
         elif choice == "2":
-            print("2 selected")
+            add_user()
+            display_markdown(welcome_text)
         elif choice == "3":
             os.system("python -m rich.markdown README.md")
+            display_markdown(home_selection)
         else:
             print("Please select an option from the menu")
         choice = input("Selection: ")
