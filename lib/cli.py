@@ -152,22 +152,35 @@ if __name__ == "__main__":
         main_menu()
 
     def edit_review():
-        user_input = input("Enter Review ID to edit: ")
-        edited_review = input("Enter new review out of 10: ")
+        user_input = input("Enter Review ID to edit or back to return: ")
 
         review_query = session.query(Review).filter(Review.id == user_input).first()
 
-        if int(user_input) <= 0 or int(user_input) > len(query_list_reviews):
-            print("Review not found")
-            return edit_review()
-        if selected_user.name != review_query.author:
+        if user_input == "back":
+            review_menu()
+            return
+        try:
+            if int(user_input) <= 0 or int(user_input) > len(query_list_reviews):
+                print("Review not found")
+                edit_review()
+            if selected_user.name != review_query.author:
+                os.system('clear')
+                display_reviews_table()
+                display_markdown(review_markdown)
+                print("You are not authorized to edit this review")
+                edit_review()
+        except:
             os.system('clear')
             display_reviews_table()
             display_markdown(review_markdown)
-            print("You are not authorized to edit this review")
-            return edit_review()
-        if user_input == "back":
-            return review_menu()
+            print("Invalid input must be a Review ID")
+            edit_review()
+
+        edited_review = input("Enter new review out of 10 or back to return: ")
+
+        if edited_review == "back":
+            review_menu()
+            return
 
         try:
             int(edited_review)
@@ -175,12 +188,12 @@ if __name__ == "__main__":
                 review_query.review = edited_review
                 session.commit()
                 review_menu()
-            else:
-                print("Review must be a number between 0 and 10")
-                return edit_review()
         except:
-            print("Invalid input must be a number")
-            return edit_review()
+            os.system('clear')
+            display_reviews_table()
+            display_markdown(review_markdown)
+            print("Invalid review must be a number between 0 and 10")
+            edit_review()
         
     ####################### MENUS #######################
     def spot_menu():
