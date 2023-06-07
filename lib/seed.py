@@ -13,9 +13,9 @@ if __name__ == '__main__':
     session.query(Review).delete()
 
     users= [
-        User(name="Eli", certified="True"),
-        User(name="David", certified="True"),
-        User(name="Cody", certified="True")
+        User(name="Eli"),
+        User(name="David"),
+        User(name="Cody")
     ]
 
     spots = [

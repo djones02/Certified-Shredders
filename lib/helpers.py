@@ -31,7 +31,8 @@ spot_markdown = """
 
 review_markdown = """
     1. Edit Review
-    2. View All Reviews
-    3. View README
-    4. Back to Spots
+    2. Delete Review
+    3. View All Reviews
+    4. View README
+    5. Back to Spots
 """

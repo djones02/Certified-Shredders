@@ -22,14 +22,17 @@ if __name__ == "__main__":
     selected_user = None
     selected_spot = None
 
+
     ################# GLOBAL FUNCTIONS ##################
     def display_markdown(text):
         console.print(Markdown(text), style='bold')
+
 
     def display_readme(markdown):
         os.system('clear')
         os.system("python -m rich.markdown README.md")
         display_markdown(markdown)
+
 
     def refresh_query_lists():
         global query_list_users
@@ -39,13 +42,25 @@ if __name__ == "__main__":
         query_list_spots = [spot for spot in session.query(Spot)]
         query_list_reviews = [review for review in session.query(Review)]
 
+
+    def review_amount_query():
+        for user in query_list_users:
+            review_list = len([review for review in query_list_reviews if user.name == review.author])
+            user.reviews = review_list
+
+
+    def review_error():
+        os.system('clear')
+        display_reviews_table()
+        display_markdown(review_markdown)
+
+
     def display_user_table():
         table = Table( title="Users", show_header=True, header_style="bold")
         table.add_column("ID")
         table.add_column("Name")
         table.add_column("Certified")
         table.add_column("Reviews")
-
         for user in query_list_users:
             table.add_row(
                 f"{user.id}",
@@ -53,8 +68,8 @@ if __name__ == "__main__":
                 f"{user.certified}",
                 f"{user.reviews}"
             )
-
         console.print(table)
+
 
     def display_spot_table():
         table = Table(title="Surf & Skate Spots", show_header=True, header_style="bold")
@@ -63,7 +78,6 @@ if __name__ == "__main__":
         table.add_column("Type")
         table.add_column("City")
         table.add_column("State")
-
         for spot in query_list_spots:
             table.add_row(
                 f"{spot.id}",
@@ -72,9 +86,9 @@ if __name__ == "__main__":
                 f"{spot.city}",
                 f"{spot.state}"
             )
-        
         console.print(table)
         print("Selected user: ", selected_user.name)
+
 
     def display_reviews_table():
         table = Table(title="All Reviews", show_header=True, header_style="bold")
@@ -82,7 +96,6 @@ if __name__ == "__main__":
         table.add_column("Spot Name")
         table.add_column("Author")
         table.add_column("Review")
-
         for review in query_list_reviews:
             table.add_row(
                 f"{review.id}",
@@ -90,19 +103,16 @@ if __name__ == "__main__":
                 f"{review.author}",
                 f"{review.review}"
             )
-        
         console.print(table)
         print("Selected user: ", selected_user.name)
 
+
     ################## ADDING+EDITING FUNCTIONS ######################
     def add_user():
-        session.add(User(
-            name=input("Username: "),
-            certified= "False",
-            reviews=0)
-        )
+        session.add(User(name=input("Username: ")))
         session.commit()
         refresh_query_lists()
+
 
     def add_spot():
         session.add(Spot(
@@ -114,30 +124,36 @@ if __name__ == "__main__":
         session.commit()
         refresh_query_lists()
 
+
     def add_review():
         user_choice = input("Select Spot by ID: ")
         spot_index = int(user_choice) - 1
-
         if 0 <= spot_index <= len(query_list_spots):
             global selected_spot
             selected_spot = query_list_spots[spot_index]
         else:
             print("Invalid user number. Please try again.")
-        
         session.add(Review(
             spot_name=selected_spot.name, 
             author=selected_user.name,
             review=input('Review out of 10: ')
             ))
+        selected_user.reviews += 1
+        handle_cert()
         session.commit()
         refresh_query_lists()
+
+
+    def handle_cert():
+        for user in query_list_users:
+            if user.reviews > 5:
+                user.certified = "True"
+
 
     def select_user():
         os.system('clear')
         display_user_table()
-
-        user_choice = input("Choose a user by entering the ID or enter 0 to retrun to main menu: ")
-        
+        user_choice = input("Choose a user by entering the ID or enter 0 to return to main menu: ")
         while user_choice != "0":
             try:
                 user_index = int(user_choice) - 1
@@ -151,11 +167,10 @@ if __name__ == "__main__":
                 print("Invalid user number. Please try again.")
         main_menu()
 
+
     def edit_review():
         user_input = input("Enter Review ID to edit or back to return: ")
-
         review_query = session.query(Review).filter(Review.id == user_input).first()
-
         if user_input == "back":
             review_menu()
             return
@@ -164,24 +179,17 @@ if __name__ == "__main__":
                 print("Review not found")
                 edit_review()
             if selected_user.name != review_query.author:
-                os.system('clear')
-                display_reviews_table()
-                display_markdown(review_markdown)
+                review_error()
                 print("You are not authorized to edit this review")
                 edit_review()
         except:
-            os.system('clear')
-            display_reviews_table()
-            display_markdown(review_markdown)
+            review_error()
             print("Invalid input must be a Review ID")
             edit_review()
-
         edited_review = input("Enter new review out of 10 or back to return: ")
-
         if edited_review == "back":
             review_menu()
             return
-
         try:
             int(edited_review)
             if 0 < int(edited_review) and int(edited_review) <= 10:
@@ -189,18 +197,40 @@ if __name__ == "__main__":
                 session.commit()
                 review_menu()
         except:
-            os.system('clear')
-            display_reviews_table()
-            display_markdown(review_markdown)
+            review_error()
             print("Invalid review must be a number between 0 and 10")
             edit_review()
+
+
+    def delete_review():
+        user_input = input("Enter review ID to delete or back to return: ")
+        if user_input == "back":
+            review_menu()
+            return
+        review_query = session.query(Review).filter(Review.id == user_input).first()
+        if review_query:
+            if selected_user.name != review_query.author:
+                review_error()
+                print("You are not authorized to delete this review")
+                delete_review()
+            else:
+                session.delete(review_query)
+                session.commit()
+                refresh_query_lists()
+                review_menu()
+        else:
+            review_error()
+            print("Review not found")
+            delete_review()
+    
+
+
         
     ####################### MENUS #######################
     def spot_menu():
         os.system('clear')
         display_spot_table()
         display_markdown(spot_markdown)
-
         choice = input("Selection: ")
         while choice != "6":
             if choice == "1": # ADD SURF/SKATE SPOT
@@ -219,30 +249,31 @@ if __name__ == "__main__":
             choice = input("Selection: ")
         select_user()
 
+
     def review_menu():
         os.system('clear')
         display_reviews_table()
         display_markdown(review_markdown)
-
         choice = input("Selection: ")
-        while choice != "4":
+        while choice != "5":
             if choice == "1": # EDIT REVIEW
                 edit_review()
             elif choice == "2": # VIEW ALL REVIEWS
-                review_menu()
+                delete_review()
             elif choice == "3": # VIEW README
+                review_menu()
+            elif choice == "4":
                 display_readme(review_markdown)
             else:
                 print("Please select an option from the menu")
             choice = input("Selection: ")
         spot_menu()
 
+
     def main_menu():
         os.system('clear')
         display_markdown(welcome_text)
-
         choice = input("Selection: ")
-
         while choice != "4":
             if choice == "1": # SELECT USER
                 select_user()
@@ -255,6 +286,10 @@ if __name__ == "__main__":
                 print("Please select an option from the menu")
             choice = input("Selection: ")
         print("Exiting the App")
-        
+
+
     ###################### APP INIT #####################
+    refresh_query_lists()
+    review_amount_query()
+    handle_cert()
     main_menu()
