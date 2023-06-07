@@ -1,6 +1,6 @@
-from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
 
 engine = create_engine('sqlite:///certified_shredders.db')
 Base = declarative_base()
