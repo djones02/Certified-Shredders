@@ -15,23 +15,25 @@ session = Session()
 if __name__ == "__main__":   
 
     ################# GLOBAL VARIABLES ###################
-    console = Console()
+    theme = Theme({
+
+    })
+    console = Console(theme = theme)
     query_list_users = [user for user in session.query(User)]
     query_list_spots = [spot for spot in session.query(Spot)]
     query_list_reviews = [review for review in session.query(Review)]
     selected_user = None
     selected_spot = None
 
-
     ################# GLOBAL FUNCTIONS ##################
     def display_markdown(text):
-        console.print(Markdown(text), style='bold')
+        console.print(Markdown(text), style='markdown_theme')
 
 
     def display_readme(markdown):
         os.system('clear')
         os.system("python -m rich.markdown README.md")
-        display_markdown(markdown)
+        print(markdown)
 
 
     def refresh_query_lists():
@@ -52,11 +54,12 @@ if __name__ == "__main__":
     def review_error():
         os.system('clear')
         display_reviews_table()
-        display_markdown(review_markdown)
+        print(review_menu)
+
 
 
     def display_user_table():
-        table = Table( title="Users", show_header=True, header_style="bold")
+        table = Table(title="Users", show_header=True, header_style="bold", show_lines=True)
         table.add_column("ID")
         table.add_column("Name")
         table.add_column("Certified")
@@ -72,7 +75,7 @@ if __name__ == "__main__":
 
 
     def display_spot_table():
-        table = Table(title="Surf & Skate Spots", show_header=True, header_style="bold")
+        table = Table(title="Surf & Skate Spots", show_header=True, header_style="bold", show_lines=True)
         table.add_column("ID")
         table.add_column("Nickname")
         table.add_column("Type")
@@ -91,7 +94,7 @@ if __name__ == "__main__":
 
 
     def display_reviews_table():
-        table = Table(title="All Reviews", show_header=True, header_style="bold")
+        table = Table(title="All Reviews", show_header=True, header_style="bold", show_lines=True)
         table.add_column("ID")
         table.add_column("Spot Name")
         table.add_column("Author")
@@ -224,14 +227,12 @@ if __name__ == "__main__":
             print("Review not found")
             delete_review()
     
-
-
         
     ####################### MENUS #######################
     def spot_menu():
         os.system('clear')
         display_spot_table()
-        display_markdown(spot_markdown)
+        print(spot_markdown)
         choice = input("Selection: ")
         while choice != "6":
             if choice == "1": # ADD SURF/SKATE SPOT
@@ -254,7 +255,7 @@ if __name__ == "__main__":
     def review_menu():
         os.system('clear')
         display_reviews_table()
-        display_markdown(review_markdown)
+        print(review_markdown)
         choice = input("Selection: ")
         while choice != "5":
             if choice == "1": # EDIT REVIEW
@@ -273,7 +274,7 @@ if __name__ == "__main__":
 
     def main_menu():
         os.system('clear')
-        display_markdown(welcome_text)
+        print(welcome_markdown)
         choice = input("Selection: ")
         while choice != "4":
             if choice == "1": # SELECT USER
