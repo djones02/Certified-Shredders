@@ -44,5 +44,6 @@ class Review(Base):
 
     def __repr__(self):
         return f"Review ID: {self.id}" \
-            + f"{self.name}" \
+            + f"{self.spot_name}" \
+            + f"{self.author}" \
             + f"Review: {self.review}"
