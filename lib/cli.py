@@ -104,6 +104,45 @@ if __name__ == "__main__":
         session.commit()
         refresh_query_lists()
 
+    def edit_review():
+        user_input = input("Enter Review Id to edit: ")
+        review_query = session.query(Review).filter(Review.id == user_input).first()
+        if int(user_input) <= 0 or int(user_input) > len(query_list_reviews):
+            print("Review not found.")
+            return edit_review()
+        if selected_user.name != review_query.author:
+            print("You are not authorized to edit this review.")
+            return edit_review()
+        if user_input == "back":
+            return review_menu()
+        edited_review = input("Enter new review out of 10: ")
+        
+        try:
+            int(edited_review)
+            if 0 < int(edited_review) and int(edited_review) <= 10:
+                review_query.review = edited_review
+                session.commit()
+                os.system("clear")
+                display_reviews_table()
+                display_markdown(review_markdown)
+            else:
+                print("Review must be a number between 0 and 10")
+                return edit_review()
+            # edited_review = input_field
+        except:
+            print("Invalid input must be a number")
+            return edit_review()
+        # if 0 > int(input_field) or int(input_field) > 10:
+        #     print("Please enter a number between 0 and 10")
+        #     return edit_review()
+        # else:
+        #     edited_review = input_field
+        # review_query.review = edited_review
+        # session.commit()
+        # os.system("clear")
+        # display_reviews_table()
+        # display_markdown(review_markdown)
+
     def select_user():
         user_choice = input("Choose a user by entering the ID or enter 0 to return: ")
         while user_choice != "0":
@@ -163,7 +202,7 @@ if __name__ == "__main__":
         choice = input("Selection: ")
         while choice != "4":
             if choice == "1":
-                print('1 selected')
+                edit_review()
             elif choice == "2":
                 os.system('clear')
                 display_reviews_table()
