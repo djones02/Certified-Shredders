@@ -216,6 +216,7 @@ if __name__ == "__main__":
             else:
                 session.delete(review_query)
                 session.commit()
+                selected_user.reviews -= 1
                 refresh_query_lists()
                 review_menu()
         else:
