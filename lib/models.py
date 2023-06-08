@@ -10,7 +10,7 @@ class User(Base):
 
     id = Column(Integer(), primary_key=True)
     name = Column(String(), index=True)
-    certified = Column(String(), default="False")
+    certified = Column(String(), default="Poser")
     reviews = Column(Integer(), default=0)
 
     def __repr__(self):
