@@ -8,6 +8,7 @@ from rich.theme import Theme
 from rich.table import Table
 from rich.markdown import Markdown
 import sys
+import ipdb
 
 engine = create_engine('sqlite:///certified_shredders.db')
 Session = sessionmaker(bind=engine)
@@ -25,7 +26,13 @@ if __name__ == "__main__":
     query_list_reviews = [review for review in session.query(Review)]
     selected_user = None
     selected_spot = None
-
+    surf_skate = ("Surf", "Skate") ###########################################################
+    state_abb = (
+    'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 
+    'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 
+    'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 
+    'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+    )
     ################# GLOBAL FUNCTIONS ##################
     def display_readme():
         os.system('clear')
@@ -134,14 +141,90 @@ if __name__ == "__main__":
 
 
     def add_spot():
+        while True:
+            spot_name_input = input("Enter spot name: ")
+            if spot_name_input.lower() == "back":
+                break
+            else:
+                break
+        if spot_name_input == "back":
+            os.system('clear')
+            display_spot_table()
+            print(spot_markdown)
+            spot_menu()
+
+        while True:
+            type_input = input('Enter 1 for Surf or 2 for Skate or back to return: ')
+            if type_input.lower() == "back":
+                # os.system('clear')
+                # display_spot_table()
+                # print(spot_markdown)
+                break
+            try:
+                choice_index = int(type_input) - 1
+                if choice_index < 0 or choice_index > 1:
+                    raise ValueError()
+                spot_type = type_input[choice_index]
+                break
+            except ValueError:
+                os.system('clear')
+                display_spot_table()
+                console.print("Invalid spot type", style="error")
+                continue
+        if type_input.lower() == "back":
+
+            os.system('clear')
+            display_spot_table()
+            print(spot_markdown)
+            spot_menu()
+
+        while True:
+            city_input = input("Enter city: ")
+            if city_input.lower() == "back":
+                break
+            else:
+                break
+        if city_input == "back":
+            os.system('clear')
+            display_spot_table()
+            print(spot_markdown)
+            spot_menu()
+
+        while True:
+            state_input = input("Please enter 2 letter state abbreviation: ")
+            if state_input.lower() == "back":
+                break
+            try:
+                if state_input.upper() not in state_abb:
+                    raise ValueError
+                state_selection = state_input.upper()
+                break
+            except ValueError:
+                os.system("clear")
+                display_spot_table()
+                console.print("Invalid state selection", style="error")
+                continue
+        if state_input.lower() == "back":
+            os.system('clear')
+            display_spot_table()
+            print(spot_markdown)
+            spot_menu()
+
         session.add(Spot(
-            name=input('Spot Name: '), 
-            type=input('Surf or Skate?: '),
-            city=input('City: '),
-            state=input('State: ')
+            name=spot_name_input, 
+            type=spot_type,
+            city=city_input,
+            state=state_selection
         ))
         session.commit()
         refresh_query_lists()
+        
+            
+        os.system('clear')
+        display_spot_table()
+        print(spot_markdown)
+        spot_menu()
+        
 
 
     def add_review():
