@@ -9,6 +9,7 @@ from rich.table import Table
 from rich.markdown import Markdown
 import sys
 import ipdb
+from seed import *
 
 engine = create_engine('sqlite:///certified_shredders.db')
 Session = sessionmaker(bind=engine)
@@ -63,7 +64,7 @@ if __name__ == "__main__":
     def handle_cert():
         for user in query_list_users:
             if user.reviews > 5:
-                user.certified = "True"
+                user.certified = "Shredder"
 
 
     def display_user_table():
@@ -574,6 +575,7 @@ if __name__ == "__main__":
 
 
     ###################### APP INIT #####################
+    os.system('python seed.py')
     refresh_query_lists()
     review_amount_query()
     handle_cert()
