@@ -128,7 +128,6 @@ if __name__ == "__main__":
             os.system('clear')
             print(welcome_markdown)
             main_menu()
-            # return ########################
         session.add(User(name=user_input))
         session.commit()
         refresh_query_lists()
@@ -182,7 +181,7 @@ if __name__ == "__main__":
                 session.add(Review(
                     spot_name=selected_spot.name, 
                     author=selected_user.name,
-                    review=input('Review out of 10: ')
+                    review=user_input
                     ))
             if int(user_input) < 0 or int(user_input) > 10:
                 os.system("clear")
@@ -208,75 +207,86 @@ if __name__ == "__main__":
 
 
     def select_user():
-        user_choice = input("Choose a user by entering the ID or enter back to return: ")
-        if user_choice.lower() == "back":
+            
+            while True:
+                user_choice = input("Choose a user by entering the ID or enter back to return: ")
+                    
+                if user_choice.lower() == "back":
+                    os.system('clear')
+                    print(welcome_markdown)
+                    break
+                
+                try:
+                    user_index = int(user_choice) - 1
+                    if user_index < 0 or user_index >= len(query_list_users):
+                        raise ValueError()
+                    global selected_user
+                    selected_user = query_list_users[user_index]
+                    break
+                except ValueError:
+                    os.system('clear')
+                    display_user_table()
+                    console.print("Invalid user number. Please try again.", style="error")
+                    continue 
+
+            if user_choice == "back":
                 os.system('clear')
                 print(welcome_markdown)
                 main_menu()
-        
-        try:
-            
-            if int(user_choice) <= 0 or int(user_choice) > len(query_list_users):
-                os.system('clear')
-                display_user_table()
-                console.print("Invalid user number. Please try again.", style="error")
-                select_user()
-
-            user_index = int(user_choice) - 1
-            
-            if 0 <= user_index <= len(query_list_users):
-                global selected_user
-                selected_user = query_list_users[user_index]
+            else:
                 os.system('clear')
                 display_spot_table()
                 print(spot_markdown)
-                spot_menu() 
-        except:
-            os.system('clear')
-            display_user_table()
-            console.print("Invalid user number. Please try again.", style="error")
-            select_user()
-
-            
+                spot_menu()
+         
     def edit_review():
         user_input = input("Enter Review ID to edit or back to return: ")
-        review_query = session.query(Review).filter(Review.id == user_input).first()
+
         if user_input.lower() == "back":
             review_menu()
-            return
+
         try:
-            if int(user_input) <= 0 or int(user_input) > len(query_list_reviews):
+            review_id = int(user_input)
+            review_query = session.query(Review).filter(Review.id == review_id).first()
+
+            if not review_query:
                 os.system("clear")
                 display_reviews_table()
                 console.print("Review not found", style="error")
                 edit_review()
+
             if selected_user.name != review_query.author:
                 review_error()
                 console.print("You are not authorized to edit this review", style="error")
                 edit_review()
-        except:
+
+        except ValueError:
             os.system("clear")
             review_error()
-            console.print("Invalid input must be a Review ID", style="error")
+            console.print("Invalid input. Review ID must be an integer.", style="error")
             edit_review()
-        edited_review = input("Enter new review out of 10 or back to return: ")
+
+        edited_review = input("Enter a new review out of 10 or back to return: ")
+
         if edited_review.lower() == "back":
             review_menu()
-            return
+
         try:
-            int(edited_review)
-            if int(edited_review) <= 0 or int(edited_review) >= 10:
+            edited_score = int(edited_review)
+
+            if edited_score < 0 or edited_score > 10:
                 os.system("clear")
                 display_reviews_table()
                 console.print("Review must be a number between 0 and 10", style="error")
                 edit_review()
-            if 0 < int(edited_review) and int(edited_review) <= 10:
-                review_query.review = edited_review
-                session.commit()
-                review_menu()
-        except:
+
+            review_query.review = edited_score
+            session.commit()
+            review_menu()
+
+        except ValueError:
             review_error()
-            console.print("Invalid review must be a number between 0 and 10", style="error")
+            console.print("Invalid review. Review score must be an integer between 0 and 10", style="error")
             edit_review()
 
 
@@ -303,21 +313,23 @@ if __name__ == "__main__":
             delete_review()
     
 
-    # def exit_app():
-    #     os.system("clear")
-    #     console.print("Are you sure you want to exit? (Y/N):", style="bold")
-    #     user_input = input().lower()
+    def exit_app():
+        console.print("Are you sure you want to exit? (Y/N):", style="error")
+        user_input = input().lower()
 
-    #     if user_input == "y" or user_input == "yes":
-    #         session.close()
-    #         sys.exit()
-    #     elif user_input == "n" or user_input == "no":
-    #         os.system("clear")
-    #         main_menu()
-    #     else:
-    #         os.system("clear")
-    #         console.print("Invalid input. Please enter Y or N.", style="error")
-    #         exit_app()
+        if user_input == "y" or user_input == "yes":
+            os.system("clear")
+            console.print('Hope to see you soon!', style="error")
+            session.close()
+            sys.exit()
+        elif user_input == "n" or user_input == "no":
+            os.system("clear")
+            print(welcome_markdown)
+            main_menu()
+        else:
+            os.system("clear")
+            console.print("Invalid input. Please enter Y or N.", style="error")
+            exit_app()
         
     ####################### MENUS #######################
     def readme_menu():
@@ -333,6 +345,8 @@ if __name__ == "__main__":
         if choice == "1": # ADD SURF/SKATE SPOT
             add_spot()
             os.system('clear')
+            display_spot_table()
+            print(spot_markdown)
             spot_menu()
         elif choice == "2": # ADD REVIEW
             os.system('clear')
@@ -405,8 +419,7 @@ if __name__ == "__main__":
             main_menu()
         elif choice == "4":
             os.system('clear')
-            console.print("Exiting the App", style="error")
-            exit()
+            exit_app()
         else:
             os.system('clear')
             print(welcome_markdown)
