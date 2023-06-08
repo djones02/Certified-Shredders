@@ -7,6 +7,7 @@ from rich.console import Console
 from rich.theme import Theme
 from rich.table import Table
 from rich.markdown import Markdown
+import sys
 
 engine = create_engine('sqlite:///certified_shredders.db')
 Session = sessionmaker(bind=engine)
@@ -50,7 +51,7 @@ if __name__ == "__main__":
     def review_error():
         os.system('clear')
         display_reviews_table()
-        print(review_menu)
+        # print(review_markdown)
 
 
     def display_user_table():
@@ -127,6 +128,7 @@ if __name__ == "__main__":
             os.system('clear')
             print(welcome_markdown)
             main_menu()
+            # return ########################
         session.add(User(name=user_input))
         session.commit()
         refresh_query_lists()
@@ -144,18 +146,54 @@ if __name__ == "__main__":
 
 
     def add_review():
-        user_choice = input("Select Spot by ID: ")
-        spot_index = int(user_choice) - 1
-        if 0 <= spot_index <= len(query_list_spots):
-            global selected_spot
-            selected_spot = query_list_spots[spot_index]
-        else:
-            console.print("Invalid user number. Please try again.", style="error")
-        session.add(Review(
-            spot_name=selected_spot.name, 
-            author=selected_user.name,
-            review=input('Review out of 10: ')
-            ))
+        user_choice = input("Select Spot by ID or enter back to return: ")
+        if user_choice.lower() == "back":
+                os.system("clear")
+                display_spot_table()
+                print(spot_markdown)
+                spot_menu()
+        
+        try:
+            
+            spot_index = int(user_choice) - 1
+            if spot_index < 0 or spot_index >= len(query_list_spots):
+                os.system("clear")
+                display_spot_table()
+                console.print("Spot ID not found", style="error")
+                add_review()
+            if 0 <= spot_index <= len(query_list_spots):
+                global selected_spot
+                selected_spot = query_list_spots[spot_index]
+        except:
+            os.system("clear")
+            display_spot_table()
+            console.print("Invalid spot ID. Please try again.", style="error")
+            add_review()
+
+        user_input = input('Review out of 10: ')
+        if user_input.lower() == "back":
+                os.system("clear")
+                display_spot_table()
+                print(spot_markdown)
+                spot_menu()
+        
+        try:
+            if int(user_input) >= 0 and int(user_input) <= 10:
+                session.add(Review(
+                    spot_name=selected_spot.name, 
+                    author=selected_user.name,
+                    review=input('Review out of 10: ')
+                    ))
+            if int(user_input) < 0 or int(user_input) > 10:
+                os.system("clear")
+                display_spot_table()
+                console.print("Review must be a number between 0 and 10", style="error")
+                add_review()
+        except:
+            os.system("clear")
+            display_spot_table()
+            console.print("Review must be a number between 0 and 10", style="error")
+            add_review()
         selected_user.reviews += 1
         handle_cert()
         session.commit()
@@ -171,12 +209,18 @@ if __name__ == "__main__":
 
     def select_user():
         user_choice = input("Choose a user by entering the ID or enter back to return: ")
-        
-        try:
-            if user_choice.lower() == "back":
+        if user_choice.lower() == "back":
                 os.system('clear')
                 print(welcome_markdown)
                 main_menu()
+        
+        try:
+            
+            if int(user_choice) <= 0 or int(user_choice) > len(query_list_users):
+                os.system('clear')
+                display_user_table()
+                console.print("Invalid user number. Please try again.", style="error")
+                select_user()
 
             user_index = int(user_choice) - 1
             
@@ -184,6 +228,8 @@ if __name__ == "__main__":
                 global selected_user
                 selected_user = query_list_users[user_index]
                 os.system('clear')
+                display_spot_table()
+                print(spot_markdown)
                 spot_menu() 
         except:
             os.system('clear')
@@ -200,6 +246,8 @@ if __name__ == "__main__":
             return
         try:
             if int(user_input) <= 0 or int(user_input) > len(query_list_reviews):
+                os.system("clear")
+                display_reviews_table()
                 console.print("Review not found", style="error")
                 edit_review()
             if selected_user.name != review_query.author:
@@ -207,6 +255,7 @@ if __name__ == "__main__":
                 console.print("You are not authorized to edit this review", style="error")
                 edit_review()
         except:
+            os.system("clear")
             review_error()
             console.print("Invalid input must be a Review ID", style="error")
             edit_review()
@@ -216,6 +265,11 @@ if __name__ == "__main__":
             return
         try:
             int(edited_review)
+            if int(edited_review) <= 0 or int(edited_review) >= 10:
+                os.system("clear")
+                display_reviews_table()
+                console.print("Review must be a number between 0 and 10", style="error")
+                edit_review()
             if 0 < int(edited_review) and int(edited_review) <= 10:
                 review_query.review = edited_review
                 session.commit()
@@ -248,6 +302,22 @@ if __name__ == "__main__":
             console.print("Review not found", style="error")
             delete_review()
     
+
+    # def exit_app():
+    #     os.system("clear")
+    #     console.print("Are you sure you want to exit? (Y/N):", style="bold")
+    #     user_input = input().lower()
+
+    #     if user_input == "y" or user_input == "yes":
+    #         session.close()
+    #         sys.exit()
+    #     elif user_input == "n" or user_input == "no":
+    #         os.system("clear")
+    #         main_menu()
+    #     else:
+    #         os.system("clear")
+    #         console.print("Invalid input. Please enter Y or N.", style="error")
+    #         exit_app()
         
     ####################### MENUS #######################
     def readme_menu():
@@ -257,20 +327,24 @@ if __name__ == "__main__":
     
 
     def spot_menu():
-        display_spot_table()
-        print(spot_markdown)
+        # display_spot_table()
+        # print(spot_markdown)
         choice = input("Selection: ")
         if choice == "1": # ADD SURF/SKATE SPOT
             add_spot()
             os.system('clear')
             spot_menu()
         elif choice == "2": # ADD REVIEW
+            os.system('clear')
+            display_spot_table()
             add_review()
         elif choice == "3": # VIEW ALL REVIEWS
             review_menu()
         elif choice == "4": # VIEW README
             display_readme()
             os.system('clear')
+            display_spot_table()
+            print(spot_markdown)
             spot_menu()
         elif choice == "5":
             os.system('clear')
@@ -278,6 +352,8 @@ if __name__ == "__main__":
             select_user()
         else:
             os.system('clear')
+            display_spot_table()
+            print(spot_markdown)
             console.print("Please select an option from the menu", style="error")
             spot_menu()
 
@@ -302,6 +378,8 @@ if __name__ == "__main__":
             review_menu()
         elif choice == "5":
             os.system('clear')
+            display_spot_table()
+            print(spot_markdown)
             spot_menu()
         else:
             os.system('clear')
