@@ -60,6 +60,11 @@ if __name__ == "__main__":
         display_reviews_table()
         # print(review_markdown)
 
+    def handle_cert():
+        for user in query_list_users:
+            if user.reviews > 5:
+                user.certified = "True"
+
 
     def display_user_table():
         table = Table(
@@ -130,23 +135,43 @@ if __name__ == "__main__":
 
     ################## ADDING+EDITING FUNCTIONS ######################
     def add_user():
-        user_input = input("Enter username or back to return: ")
+        while True:
+            user_input = input("Enter username or back to return: ")
+            if user_input.lower() == "back":
+                break
+            for user in query_list_users:
+                if user_input.title() == user.name:
+                    os.system('clear')
+                    print(welcome_markdown)
+                    console.print("User already exists", style="error")
+                    main_menu()
+            break
         if user_input.lower() == "back":
             os.system('clear')
             print(welcome_markdown)
             main_menu()
-        session.add(User(name=user_input))
+        
+        session.add(User(name=user_input.title()))
         session.commit()
         refresh_query_lists()
-
+        os.system('clear')
+        display_user_table()
+        select_user()
 
     def add_spot():
         while True:
             spot_name_input = input("Enter spot name: ")
             if spot_name_input.lower() == "back":
                 break
-            else:
-                break
+            for spot in query_list_spots:
+                if spot_name_input.title() == spot.name:
+                    os.system('clear')
+                    display_spot_table()
+                    print(spot_markdown)
+                    console.print("Spot already exists", style="error")
+                    spot_menu()
+            break
+        
         if spot_name_input == "back":
             os.system('clear')
             display_spot_table()
@@ -156,17 +181,14 @@ if __name__ == "__main__":
         while True:
             type_input = input('Enter 1 for Surf or 2 for Skate or back to return: ')
             if type_input.lower() == "back":
-                # os.system('clear')
-                # display_spot_table()
-                # print(spot_markdown)
                 break
             try:
                 choice_index = int(type_input) - 1
-                if choice_index < 0 or choice_index > 1:
+                if int(type_input) < 1 or int(type_input) > 2:
                     raise ValueError()
-                spot_type = type_input[choice_index]
+                spot_type = surf_skate[choice_index]
                 break
-            except ValueError:
+            except (ValueError, IndexError):
                 os.system('clear')
                 display_spot_table()
                 console.print("Invalid spot type", style="error")
@@ -211,9 +233,9 @@ if __name__ == "__main__":
             spot_menu()
 
         session.add(Spot(
-            name=spot_name_input, 
+            name=spot_name_input.title(), 
             type=spot_type,
-            city=city_input,
+            city=city_input.title(),
             state=state_selection
         ))
         session.commit()
@@ -228,66 +250,81 @@ if __name__ == "__main__":
 
 
     def add_review():
-        user_choice = input("Select Spot by ID or enter back to return: ")
-        if user_choice.lower() == "back":
-                os.system("clear")
-                display_spot_table()
-                print(spot_markdown)
-                spot_menu()
-        
-        try:
+        while True:
+            user_choice = input("Select Spot by ID or enter back to return: ")
             
-            spot_index = int(user_choice) - 1
-            if spot_index < 0 or spot_index >= len(query_list_spots):
-                os.system("clear")
-                display_spot_table()
-                console.print("Spot ID not found", style="error")
-                add_review()
-            if 0 <= spot_index <= len(query_list_spots):
+            if user_choice.lower() == "back":
+                    break
+            
+            try:
+                spot_index = int(user_choice) - 1
+
+                if spot_index < 0 or spot_index >= len(query_list_spots):
+                    raise ValueError
+                
                 global selected_spot
                 selected_spot = query_list_spots[spot_index]
-        except:
-            os.system("clear")
-            display_spot_table()
-            console.print("Invalid spot ID. Please try again.", style="error")
-            add_review()
 
-        user_input = input('Review out of 10: ')
-        if user_input.lower() == "back":
+                selected_spot_reviews = [review.author for review in query_list_reviews if review.spot_name == selected_spot.name]
+
+                if selected_user.name in selected_spot_reviews:
+                    raise IndexError
+
+                break
+            except ValueError:
                 os.system("clear")
                 display_spot_table()
-                print(spot_markdown)
-                spot_menu()
-        
-        try:
-            if int(user_input) >= 0 and int(user_input) <= 10:
-                session.add(Review(
-                    spot_name=selected_spot.name, 
-                    author=selected_user.name,
-                    review=user_input
-                    ))
-            if int(user_input) < 0 or int(user_input) > 10:
+                console.print("Invalid spot ID. Please try again", style="error")
+                continue
+            except IndexError:
+                os.system("clear")
+                display_spot_table()
+                console.print("You already wrote a review for this spot", style="error")
+                continue
+
+        if user_choice == "back":
+            os.system('clear')
+            display_spot_table()
+            print(spot_markdown)
+            spot_menu()
+
+        while True:
+            user_input = input('Review out of 10: ')
+            if user_input.lower() == "back":
+                    break
+            
+            try:
+                if int(user_input) < 0 or int(user_input) > 10:
+                    raise ValueError
+
+                break
+            except:
                 os.system("clear")
                 display_spot_table()
                 console.print("Review must be a number between 0 and 10", style="error")
-                add_review()
-        except:
-            os.system("clear")
+                continue
+        if user_input == "back":
+            os.system('clear')
             display_spot_table()
-            console.print("Review must be a number between 0 and 10", style="error")
-            add_review()
+            print(spot_markdown)
+            spot_menu()
+
+        session.add(Review(
+                        spot_name=selected_spot.name, 
+                        author=selected_user.name,
+                        review=user_input
+                        ))
         selected_user.reviews += 1
         handle_cert()
         session.commit()
         refresh_query_lists()
+        display_reviews_table
+        print(review_markdown)
         review_menu()
 
 
-    def handle_cert():
-        for user in query_list_users:
-            if user.reviews > 5:
-                user.certified = "True"
 
+ 
 
     def select_user():
             
@@ -295,8 +332,6 @@ if __name__ == "__main__":
                 user_choice = input("Choose a user by entering the ID or enter back to return: ")
                     
                 if user_choice.lower() == "back":
-                    os.system('clear')
-                    print(welcome_markdown)
                     break
                 
                 try:
@@ -323,78 +358,109 @@ if __name__ == "__main__":
                 spot_menu()
          
     def edit_review():
-        user_input = input("Enter Review ID to edit or back to return: ")
+        os.system('clear')
+        display_reviews_table()
 
-        if user_input.lower() == "back":
-            review_menu()
+        while True:
+            user_input = input("Enter Review ID to edit or back to return: ")
+            review_query = session.query(Review).filter(Review.id == user_input).first()
 
-        try:
-            review_id = int(user_input)
-            review_query = session.query(Review).filter(Review.id == review_id).first()
+            if user_input.lower() == "back":
+                break
 
-            if not review_query:
-                os.system("clear")
-                display_reviews_table()
+            try:
+                int(user_input)
+                
+                if not review_query:
+                    raise ValueError
+
+                if selected_user.name != review_query.author:
+                    raise IndexError
+                
+                break
+
+            except ValueError:
+                review_error()
                 console.print("Review not found", style="error")
-                edit_review()
-
-            if selected_user.name != review_query.author:
+                continue
+            except IndexError:
                 review_error()
                 console.print("You are not authorized to edit this review", style="error")
-                edit_review()
-
-        except ValueError:
-            os.system("clear")
-            review_error()
-            console.print("Invalid input. Review ID must be an integer.", style="error")
-            edit_review()
-
-        edited_review = input("Enter a new review out of 10 or back to return: ")
-
-        if edited_review.lower() == "back":
+                continue
+        if user_input == "back":
+            os.system('clear')
+            display_reviews_table
+            print(review_markdown)
             review_menu()
 
-        try:
-            edited_score = int(edited_review)
+        while True:
+            edited_review = input("Enter a new review out of 10 or back to return: ")
 
-            if edited_score < 0 or edited_score > 10:
-                os.system("clear")
-                display_reviews_table()
-                console.print("Review must be a number between 0 and 10", style="error")
-                edit_review()
+            if edited_review.lower() == "back":
+                break
 
-            review_query.review = edited_score
-            session.commit()
+            try:
+                if int(edited_review) < 0 or int(edited_review) > 10:
+                    raise ValueError
+                
+                break
+            except:
+                review_error()
+                console.print('Review must be an integer between 0 & 10', style="error")
+                continue
+
+        if user_input == "back":
+            os.system('clear')
+            display_reviews_table
+            print(review_markdown)
             review_menu()
-
-        except ValueError:
-            review_error()
-            console.print("Invalid review. Review score must be an integer between 0 and 10", style="error")
-            edit_review()
-
+        review_query.review = edited_review
+        session.commit()
+        review_menu()
 
     def delete_review():
-        user_input = input("Enter review ID to delete or back to return: ")
-        if user_input.lower() == "back":
-            review_menu()
-            return
-        review_query = session.query(Review).filter(Review.id == user_input).first()
-        if review_query:
-            if selected_user.name != review_query.author:
+        os.system('clear')
+        display_reviews_table()
+        while True:
+            user_input = input("Enter review ID to delete or back to return: ")
+            
+            
+            if user_input.lower() == "back":
+                break
+
+            try:
+                
+                if int(user_input) not in [review.id for review in session.query(Review)]:
+                    raise ValueError
+                
+                review_query = session.query(Review).filter(Review.id == int(user_input)).first()
+                
+                if selected_user.name != review_query.author:
+                    raise IndexError
+                
+                
+                break   
+            except ValueError:
+                review_error()
+                console.print("Review not found", style="error")
+                continue
+            except IndexError:
                 review_error()
                 console.print("You are not authorized to delete this review", style="error")
-                delete_review()
-            else:
-                session.delete(review_query)
-                session.commit()
-                selected_user.reviews -= 1
-                refresh_query_lists()
-                review_menu()
-        else:
-            review_error()
-            console.print("Review not found", style="error")
-            delete_review()
-    
+                continue
+        if user_input == "back":
+            os.system('clear')
+            display_reviews_table
+            print(review_markdown)
+            review_menu()
+        
+        session.delete(review_query)
+        session.commit()
+        selected_user.reviews -= 1
+        refresh_query_lists()
+        review_menu()
+
+
 
     def exit_app():
         console.print("Are you sure you want to exit? (Y/N):", style="error")
@@ -419,7 +485,7 @@ if __name__ == "__main__":
         user_input = input('Exit: ')
         if user_input:
             return
-    
+
 
     def spot_menu():
         # display_spot_table()
@@ -427,10 +493,6 @@ if __name__ == "__main__":
         choice = input("Selection: ")
         if choice == "1": # ADD SURF/SKATE SPOT
             add_spot()
-            os.system('clear')
-            display_spot_table()
-            print(spot_markdown)
-            spot_menu()
         elif choice == "2": # ADD REVIEW
             os.system('clear')
             display_spot_table()
