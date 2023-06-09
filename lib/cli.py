@@ -14,7 +14,7 @@ session = Session()
 if __name__ == "__main__":
     ################# GLOBAL VARIABLES ###################
     theme = Theme({
-        "error": "red",
+        "error": "bright_red",
     })
     console = Console(theme = theme)
     surf_skate = ("Surf", "Skate")
@@ -24,6 +24,11 @@ if __name__ == "__main__":
     selected_user = None
     selected_spot = None
     clear = os.system('clear')
+    surf = False
+    skate = False
+    all = True
+    surf = "Surf"
+    skate = "Skate"
 
     ################# GLOBAL FUNCTIONS ##################
     def display_readme():
@@ -87,14 +92,35 @@ if __name__ == "__main__":
         table.add_column("Type")
         table.add_column("City")
         table.add_column("State")
-        for spot in query_list_spots:
-            table.add_row(
-                f"{spot.id}",
-                f"{spot.name}",
-                f"{spot.type}",
-                f"{spot.city}",
-                f"{spot.state}"
-            )
+        if all == True:
+            for spot in query_list_spots:
+                table.add_row(
+                    f"{spot.id}",
+                    f"{spot.name}",
+                    f"{spot.type}",
+                    f"{spot.city}",
+                    f"{spot.state}"
+                )
+        elif surf == True:
+            for spot in query_list_spots:
+                if spot.type == "Surf":
+                    table.add_row(
+                        f"{spot.id}",
+                        f"{spot.name}",
+                        f"{spot.type}",
+                        f"{spot.city}",
+                        f"{spot.state}"
+                    )
+        elif skate == True:
+            for spot in query_list_spots:
+                if spot.type == "Skate":
+                    table.add_row(
+                        f"{spot.id}",
+                        f"{spot.name}",
+                        f"{spot.type}",
+                        f"{spot.city}",
+                        f"{spot.state}"
+                    )
         console.print(table)
         print(f"Selected user: {selected_user.name}")
 
@@ -206,7 +232,47 @@ if __name__ == "__main__":
             state=state_selection
         ))
         commit()
-        spot_menu()
+        spot_menu()    
+
+    def filter_spots():
+        global skate
+        global surf
+        global all
+        skate = False
+        surf = False
+        all = True
+        os.system('clear')
+        # display_spot_table()
+        while True:
+            filter_selection = input('1 to see skate spots, 2 to see surf spots, 3 to see all spots: ')
+            try:
+                if filter_selection.lower() == "back":
+                    break
+                if int(filter_selection) not in (1, 2, 3):
+                    raise Exception
+                break
+            except:
+                os.system('clear')
+                display_spot_table()
+                console.print("Please select an option from the menu", style="error")
+                continue
+        if filter_selection == "back":
+            spot_menu()
+        if filter_selection == "1":
+            skate = True
+            surf = False
+            all = False
+            spot_menu()
+        if filter_selection == "2":
+            skate = False
+            surf = True
+            all = False
+            spot_menu()
+        if filter_selection == "3":
+            skate = False
+            surf = False
+            all = True
+            spot_menu()
 
     def add_review():
         os.system('clear')
@@ -412,10 +478,12 @@ if __name__ == "__main__":
             add_review()
         if choice == "3": # VIEW ALL REVIEWS
             review_menu()
-        if choice == "4": # VIEW README
+        if choice == "4": # FILTER SPOTS
+            filter_spots()
+        if choice == "5": # VIEW README
             display_readme()
             spot_menu()
-        if choice == "5": # BACK TO USER SELECT
+        if choice == "6": # BACK TO USER SELECT
             select_user()
 
     def review_menu():
