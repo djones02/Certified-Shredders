@@ -1,4 +1,3 @@
-from base import *
 from models import *
 
 if __name__ == '__main__':

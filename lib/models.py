@@ -18,6 +18,7 @@ class User(Base):
             + f"{self.name}" \
             + f"Certified: {self.certified}" \
             + f"Reviews: {self.reviews}" 
+
 class Spot(Base):
     __tablename__ = 'spots'
 
