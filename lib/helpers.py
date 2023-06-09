@@ -17,8 +17,9 @@ spot_markdown = """\n\
     1. Add Surf/Skate spot\n\
     2. Add Review\n\
     3. View All Reviews\n\
-    4. View README\n\
-    5. Back to User Select\n\
+    4. Filter Spots\n\
+    5. View README\n\
+    6. Back to User Select\n\
 """
 
 review_markdown = """\n\
